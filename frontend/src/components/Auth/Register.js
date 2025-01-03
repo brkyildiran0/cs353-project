@@ -1,20 +1,31 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../../api/apiClient';
+import api from '../../api/apiClient';
 
 const Register = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    forename: '',
+    surname: '',
+    notification_preference: 'yes',
+  });
+
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await apiClient.post('/auth/register', { email, password });
+      await api.register(formData);
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.message || 'Registration failed');
     }
   };
 
@@ -23,20 +34,10 @@ const Register = () => {
       <h2 className="text-2xl font-bold mb-4">Register</h2>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={handleRegister}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-4 px-4 py-2 border rounded-md"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-4 px-4 py-2 border rounded-md"
-        />
+        <input name="email" placeholder="Email" onChange={handleChange} />
+        <input name="password" placeholder="Password" onChange={handleChange} />
+        <input name="forename" placeholder="Forename" onChange={handleChange} />
+        <input name="surname" placeholder="Surname" onChange={handleChange} />
         <button type="submit" className="w-full bg-green-500 text-white py-2 rounded-md">
           Register
         </button>
